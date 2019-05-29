@@ -1,0 +1,25 @@
+[package]
+name = "store"
+version = "0.1.0-alpha.1"
+authors = ["Richard Berry <rjsberry@pm.me>"]
+license = "MIT/Apache-2.0"
+description = "A dead simple binary (de)serializer"
+repository = "https://github.com/rjsberry/store"
+keywords = ["serialization", "no_std"]
+categories = ["encoding"]
+include = ["Cargo.toml", "src/**/*.rs", "LICENSE-APACHE", "LICENSE-MIT"]
+edition = "2018"
+
+[features]
+default = ["std"]
+std = ["byteio/std", "serde/std"]
+alloc = ["byteio/alloc", "serde/alloc"]
+
+[dependencies]
+byteio = { version = "0.2", default-features = false }
+serde = { version = "1.0", default-features = false }
+
+[dev-dependencies]
+quickcheck = { version = "0.8", default-features = false }
+quickcheck_macros = "0.8"
+serde_derive = "1.0"
