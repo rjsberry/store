@@ -3,16 +3,21 @@ use crate::Error;
 use core::convert::{TryFrom, TryInto};
 use core::num::TryFromIntError;
 
-use byteio::prelude::*;
+use byteio::{prelude::*, Writer};
 
 /// Unsigned LEB128 variable-length encoding.
+///
+/// This structure is used by `store` internally when serializing sequence
+/// lengths, and is provided for completeness.
+///
+/// It can be (de)constructed using the `From` and `TryFrom` traits.
 #[derive(Debug, Copy, Clone, Eq, PartialEq)]
 pub struct ULeb128(u64);
 
 impl ULeb128 {
     const MARKER: u8 = 0x80;
 
-    pub fn read_from<'a, R: ReadBytes<'a>>(reader: &mut R) -> crate::Result<Self> {
+    pub(crate) fn _read_from<'a, R: ReadBytes<'a>>(reader: &mut R) -> crate::Result<Self> {
         let mut result = 0;
         let mut shift = 0;
 
@@ -33,7 +38,12 @@ impl ULeb128 {
         }
     }
 
-    pub fn write_into<W: WriteBytes>(mut self, writer: &mut W) -> crate::Result<()> {
+    /// Attempts to read an unsigned LEB128 encoded value from a buffer.
+    pub fn read_from<'a, R: ReadBytes<'a>>(mut reader: R) -> crate::Result<Self> {
+        Self::_read_from(&mut reader)
+    }
+
+    pub(crate) fn _write_into<W: WriteBytes>(mut self, writer: &mut W) -> crate::Result<()> {
         loop {
             let mut b = (self.0 as u8) & !Self::MARKER;
             self.0 >>= 7;
@@ -48,6 +58,14 @@ impl ULeb128 {
                 return Ok(());
             }
         }
+    }
+
+    /// Attempts to write a value into a buffer using unsigned LEB128 encoding.
+    pub fn write_into<W: WriteBytes>(self, writer: W) -> crate::Result<usize> {
+        let mut writer = Writer::new(writer);
+        self._write_into(&mut writer)?;
+
+        Ok(writer.num_bytes_written())
     }
 }
 

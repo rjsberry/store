@@ -1,4 +1,4 @@
-use crate::leb128::ULeb128;
+use crate::ULeb128;
 
 use core::convert::TryInto;
 
@@ -63,7 +63,7 @@ where
     crate::Error: From<E>,
 {
     fn try_deserialize_len(&mut self) -> crate::Result<usize> {
-        let v = ULeb128::read_from(&mut self.reader)?;
+        let v = ULeb128::_read_from(&mut self.reader)?;
         Ok(v.try_into().map_err(|_| crate::Error::SequenceTooLong)?)
     }
 
@@ -323,7 +323,7 @@ where
     {
         use ::serde::de::IntoDeserializer;
 
-        let variant_idx: u32 = ULeb128::read_from(&mut self.reader)?
+        let variant_idx: u32 = ULeb128::_read_from(&mut self.reader)?
             .try_into()
             .map_err(|_| crate::Error::TooManyEnumVariants)?;
 

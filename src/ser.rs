@@ -1,4 +1,4 @@
-use crate::leb128::ULeb128;
+use crate::ULeb128;
 
 use byteio::WriteBytes;
 use serde::Serialize;
@@ -66,7 +66,7 @@ where
     where
         T: Into<ULeb128>,
     {
-        v.into().write_into(&mut self.writer)
+        v.into()._write_into(&mut self.writer)
     }
 }
 

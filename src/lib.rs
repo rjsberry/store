@@ -79,6 +79,7 @@ mod leb128;
 mod ser;
 
 pub use self::error::{Error, Result};
+pub use self::leb128::ULeb128;
 
 use byteio::{prelude::*, Writer};
 use serde::{Deserialize, Serialize};
