@@ -10,7 +10,7 @@
 //!
 //! ```toml
 //! [dependencies]
-//! store = "0.1-alpha.1"
+//! store = "0.1.0-alpha.3"
 //! ```
 //!
 //! # Dumping types
@@ -75,11 +75,9 @@ extern crate std as alloc;
 
 mod de;
 mod error;
-mod leb128;
 mod ser;
 
 pub use self::error::{Error, Result};
-pub use self::leb128::ULeb128;
 
 use byteio::{prelude::*, Writer};
 use serde::{Deserialize, Serialize};

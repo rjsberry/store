@@ -1,8 +1,7 @@
-use crate::ULeb128;
-
 use core::convert::TryInto;
 
 use byteio::ReadBytes;
+use nano_leb128::ULEB128;
 
 #[cfg(any(feature = "std", feature = "alloc"))]
 use alloc::{borrow::ToOwned, vec::Vec};
@@ -63,8 +62,8 @@ where
     crate::Error: From<E>,
 {
     fn try_deserialize_len(&mut self) -> crate::Result<usize> {
-        let v = ULeb128::_read_from(&mut self.reader)?;
-        Ok(v.try_into().map_err(|_| crate::Error::SequenceTooLong)?)
+        let (v, _) = ULEB128::read_from_byteio(&mut self.reader)?;
+        Ok(u64::from(v).try_into().map_err(|_| crate::Error::SequenceTooLong)?)
     }
 
     fn try_deserialize_bytes(&mut self) -> crate::Result<&'a [u8]> {
@@ -323,7 +322,8 @@ where
     {
         use ::serde::de::IntoDeserializer;
 
-        let variant_idx: u32 = ULeb128::_read_from(&mut self.reader)?
+        let variant_idx: u32 = ULEB128::read_from_byteio(&mut self.reader)
+            .map(|(v, _)| u64::from(v))?
             .try_into()
             .map_err(|_| crate::Error::TooManyEnumVariants)?;
 

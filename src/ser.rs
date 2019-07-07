@@ -1,6 +1,7 @@
-use crate::ULeb128;
+use core::convert::TryInto;
 
 use byteio::WriteBytes;
+use nano_leb128::ULEB128;
 use serde::Serialize;
 
 pub(crate) struct FunctionBank<W, E> {
@@ -64,9 +65,12 @@ where
 {
     fn try_serialize_len<T>(&mut self, v: T) -> crate::Result<()>
     where
-        T: Into<ULeb128>,
+        T: TryInto<u64>,
     {
-        v.into()._write_into(&mut self.writer)
+        ULEB128::from(v.try_into().map_err(|_| crate::Error::SequenceTooLong)?)
+            .write_into_byteio(&mut self.writer)
+            .map(|_| ())
+            .map_err(Into::into)
     }
 }
 

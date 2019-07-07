@@ -3,6 +3,8 @@ use core::fmt;
 #[cfg(any(feature = "std", feature = "alloc"))]
 use alloc::string::{String, ToString};
 
+use nano_leb128::{LEB128DecodeError, LEB128EncodeError};
+
 /// A specialized [`Result`][std-result-result] type for `store` operations.
 ///
 /// [std-result-result]: https://doc.rust-lang.org/std/result/enum.Result.html
@@ -72,6 +74,23 @@ impl fmt::Display for Error {
 impl From<::byteio::Error> for Error {
     fn from(_: ::byteio::Error) -> Self {
         Error::EndOfStream
+    }
+}
+
+impl From<LEB128DecodeError> for Error {
+    fn from(err: LEB128DecodeError) -> Self {
+        match err {
+            LEB128DecodeError::BufferOverflow => Error::EndOfStream,
+            LEB128DecodeError::IntegerOverflow => Error::SequenceTooLong,
+        }
+    }
+}
+
+impl From<LEB128EncodeError> for Error {
+    fn from(err: LEB128EncodeError) -> Self {
+        match err {
+            LEB128EncodeError::BufferOverflow => Error::EndOfStream,
+        }
     }
 }
 

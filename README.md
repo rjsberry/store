@@ -19,7 +19,7 @@ To use `store`, add this to your Cargo.toml:
 
 ```toml
 [dependencies]
-store = "0.1-alpha.1"
+store = "0.1.0-alpha.3"
 ```
 
 ## Dumping types

@@ -252,24 +252,3 @@ macro_rules! qc_crate {
 
 qc_crate!(le, dump_into_le_bytes, load_from_le_bytes);
 qc_crate!(be, dump_into_be_bytes, load_from_be_bytes);
-
-mod uleb128 {
-    use store::ULeb128;
-
-    use quickcheck_macros::quickcheck;
-
-    #[test]
-    fn unsigned_leb128_wikipedia_ex() {
-        let mut buf = Vec::with_capacity(3);
-        assert_eq!(ULeb128::from(624485_u64).write_into(&mut buf).unwrap(), 3);
-        assert_eq!(buf, vec![0xE5, 0x8E, 0x26]);
-        assert_eq!(u64::from(ULeb128::read_from(&*buf).unwrap()), 624485);
-    }
-
-    #[quickcheck]
-    fn qc_unsigned_leb128(v: u64) -> bool {
-        let mut buf = Vec::with_capacity(10);
-        ULeb128::from(v).write_into(&mut buf).unwrap();
-        u64::from(ULeb128::read_from(&*buf).unwrap()) == v
-    }
-}
